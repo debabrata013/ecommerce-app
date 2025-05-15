@@ -1,12 +1,15 @@
 import Link from "next/link";
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import Hero from "./components/Hero";
+import ProductCard from "./components/ProductCard";
 
 export default function Home() {
   return (
     <main className="min-h-screen">
       <Navbar />
       
-      <div className="bg-blue-600 text-white">
+      {/* <div className="bg-blue-600 text-white">
         <div className="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
@@ -25,8 +28,10 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
+      <Hero/>
       
+
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-8">Featured Categories</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -51,6 +56,8 @@ export default function Home() {
           ))}
         </div>
       </div>
+      <Footer
+      />
     </main>
   );
 }
