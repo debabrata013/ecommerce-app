@@ -2,11 +2,11 @@ import { dbConnect } from "@/lib/dbConnect";
 import Order from "@/models/Order";
 import Cart from "@/models/Cart"; // ✅ Assuming you have this
 import { NextRequest } from "next/server";
-
+import { sendOrderConfirmation } from "@/lib/mailer";
 export async function POST(req: NextRequest) {
   await dbConnect();
   const body = await req.json();
-  const { userId, products, totalAmount, shippingAddress } = body;
+  const { userId, products, totalAmount, shippingAddress, userEmail } = body;
 
   try {
     const order = await Order.create({
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
 
     // ✅ Empty cart after placing order
     await Cart.findOneAndUpdate({ userId }, { $set: { products: [] } });
-
+await sendOrderConfirmation(userEmail, order._id.toString());
     return new Response(JSON.stringify(order), { status: 201 });
   } catch (error: any) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
