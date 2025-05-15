@@ -1,8 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# E-Commerce App with Next.js and Clerk Authentication
+
+This is a [Next.js](https://nextjs.org) e-commerce application with Clerk authentication and a RESTful API backend.
+
+## Features
+
+- User authentication with [Clerk](https://clerk.com)
+- Product listing and details
+- Shopping cart functionality
+- Order management
+- Responsive design
+
+## Tech Stack
+
+- **Frontend**: Next.js 15, React 19, TailwindCSS
+- **Authentication**: Clerk
+- **API**: Next.js API Routes
+- **Styling**: TailwindCSS
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+ and npm/yarn/pnpm/bun
+- Clerk account for authentication
+
+### Setup
+
+1. Clone the repository
+2. Install dependencies:
+
+```bash
+npm install
+# or
+yarn
+# or
+pnpm install
+# or
+bun install
+```
+
+3. Create a `.env.local` file in the root directory with your Clerk API keys:
+
+```
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_publishable_key
+CLERK_SECRET_KEY=your_secret_key
+
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
+```
+
+4. Run the development server:
 
 ```bash
 npm run dev
@@ -14,23 +63,38 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## API Routes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The application includes the following API endpoints:
+
+- `GET /api/products` - Get all products
+- `GET /api/products/:id` - Get a specific product
+- `POST /api/products` - Create a new product (protected)
+- `PUT /api/products/:id` - Update a product (protected)
+- `DELETE /api/products/:id` - Delete a product (protected)
+- `GET /api/orders` - Get user orders (protected)
+- `POST /api/orders` - Create a new order (protected)
+- `GET /api/orders/:id` - Get a specific order (protected)
+- `PUT /api/orders/:id` - Update an order (protected)
+- `GET /api/cart` - Get user's cart (protected)
+- `POST /api/cart` - Update user's cart (protected)
+
+## Authentication
+
+This project uses Clerk for authentication. Protected routes and API endpoints require a valid session.
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+To learn more about the technologies used:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Clerk Documentation](https://clerk.com/docs)
+- [TailwindCSS Documentation](https://tailwindcss.com/docs)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deployment
 
-## Deploy on Vercel
+The easiest way to deploy this app is to use the [Vercel Platform](https://vercel.com/new) from the creators of Next.js.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Check out the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
