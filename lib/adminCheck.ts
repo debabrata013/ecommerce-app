@@ -4,9 +4,9 @@ import { dbConnect } from "./dbConnect";
 import User from "@/models/User";
 
 export async function isAdmin() {
-  const { userId} = auth();
+  // const { userId} = auth();
 
-  if (!userId) return false;
+  // if (!userId) return false;
 
   await dbConnect();
   const user = await User.findOne({ clerkId: userId });

@@ -1,10 +1,18 @@
-import { auth } from "@clerk/nextjs";
+
+import { auth,currentUser  } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Navbar from "../components/Navbar";
+import { log } from "console";
 
-export default function DashboardPage() {
-  const { userId } = auth();
-  
+export default async function DashboardPage() {
+  const { userId } = await auth();
+  let role;
+
+  const user = await currentUser()
+  // console.log(user.publicMetadata)
+  if (user.publicMetadata.isAdmin === 'true') {
+    redirect('/admin') // Admin dashboard
+  }
   if (!userId) {
     redirect("/sign-in");
   }

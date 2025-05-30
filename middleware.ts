@@ -1,8 +1,9 @@
-import { clerkMiddleware } from '@clerk/nextjs/server';
+import { clerkMiddleware , ClerkMiddlewareAuth,clerkClient} from '@clerk/nextjs/server';
 
 // export default clerkMiddleware();
 // This example protects all routes including api/trpc routes
 // Please edit this to allow other routes to be public as needed
+
 export default clerkMiddleware();
 
 
@@ -22,3 +23,5 @@ export const config = {
     "/404",
   ],
 };
+
+

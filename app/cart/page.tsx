@@ -163,6 +163,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Trash2, Plus, Minus } from 'lucide-react';
 import axios from 'axios';
+import Navbar from '../components/Navbar';
 
 interface CartItem {
   id: string;
@@ -180,7 +181,7 @@ export default function CartPage() {
     try {
       setLoading(true);
       const res = await axios.get('/api/cart');
-      setCartItems(res.data);
+      setCartItems(res.data || []);
     } catch (err) {
       console.error('Error fetching cart:', err);
     } finally {
@@ -216,15 +217,17 @@ export default function CartPage() {
     fetchCart();
   }, []);
 
-  const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+  // const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+  const subtotal=0;
   const shipping = subtotal > 0 ? 99 : 0;
   const total = subtotal + shipping;
 
   return (
+    <>
+    <Navbar/>
     <div className="bg-white">
       <div className="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Shopping Cart</h1>
-
+        
         {loading ? (
           <p className="mt-12 text-center text-gray-500">Loading cart...</p>
         ) : cartItems.length === 0 ? (
@@ -327,5 +330,6 @@ export default function CartPage() {
         )}
       </div>
     </div>
+    </>
   );
 }

@@ -3,7 +3,7 @@ const fetch = require('node-fetch');
 
 // Configuration
 const BASE_URL = 'http://localhost:3000/api';
-const TEST_USER_ID = 'test-user-123'; // Replace with a valid test user ID
+const TEST_USER_ID = 'user_2x8yskKaIGSqTlzGVjAtJ9U7U3M'; // Replace with a valid test user ID
 const TEST_EMAIL = 'test@example.com';
 
 // Test data

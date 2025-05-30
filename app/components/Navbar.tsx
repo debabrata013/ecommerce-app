@@ -291,7 +291,7 @@ export default function Navbar() {
                   )}
                 </Link>
                 <Link
-                  href="/orders"
+                  href="/dashboard/orders"
                   className="text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors"
                 >
                   My Orders
