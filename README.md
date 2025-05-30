@@ -65,6 +65,22 @@ bun dev
 
 5. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## API Testing
+
+To test the API endpoints:
+
+1. Make sure your development server is running:
+```bash
+npm run dev
+```
+
+2. In a separate terminal, run the API tests:
+```bash
+npm run test:api
+```
+
+This will test all API endpoints and display the results in the console.
+
 ## API Routes
 
 The application includes the following API endpoints:
@@ -80,6 +96,9 @@ The application includes the following API endpoints:
 - `PUT /api/orders/:id` - Update an order (protected)
 - `GET /api/cart` - Get user's cart (protected)
 - `POST /api/cart` - Update user's cart (protected)
+- `GET /api/wishlist` - Get user's wishlist (protected)
+- `POST /api/wishlist` - Add to user's wishlist (protected)
+- `DELETE /api/wishlist/:id` - Remove from user's wishlist (protected)
 
 ## Authentication
 
