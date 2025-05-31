@@ -151,13 +151,16 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { UserButton, SignInButton, SignUpButton, useUser } from '@clerk/nextjs';
 import { ShoppingCart, Menu, X, Search, ChevronDown } from 'lucide-react';
+import { Product, useGlobal } from "../context/GlobalContext";
 
 export default function Navbar() {
   const { isSignedIn, user } = useUser();
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
+  // const [cartCount, setCartCount] = useState(0);
+  const { cart } = useGlobal();
+
   
   // Track scrolling for navbar appearance change
   useEffect(() => {
@@ -174,12 +177,7 @@ export default function Navbar() {
     setIsMenuOpen(false);
   }, [pathname]);
   
-  // Mock cart count for demo purposes - in a real app, this would come from your cart state management
-  useEffect(() => {
-    if (isSignedIn) {
-      setCartCount(3); // Example value
-    }
-  }, [isSignedIn]);
+  
 
   const navLinks = [
     { name: 'Home', href: '/' },
@@ -284,9 +282,9 @@ export default function Navbar() {
                   aria-label="Shopping cart"
                 >
                   <ShoppingCart className="h-5 w-5 text-gray-700" />
-                  {cartCount > 0 && (
+                  {cart.length > 0 && (
                     <span className="absolute -top-1 -right-1 bg-emerald-600 text-white text-xs h-5 w-5 flex items-center justify-center rounded-full">
-                      {cartCount}
+                      {cart.length}
                     </span>
                   )}
                 </Link>
@@ -401,9 +399,9 @@ export default function Navbar() {
                 className="flex items-center justify-between px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-emerald-600"
               >
                 <span>Cart</span>
-                {cartCount > 0 && (
+                {cart.length > 0 && (
                   <span className="bg-emerald-600 text-white text-xs py-0.5 px-2 rounded-full">
-                    {cartCount} items
+                    {cart.length} items
                   </span>
                 )}
               </Link>
