@@ -1,25 +1,78 @@
 // app/api/cart/[id]/route.js
 import { dbConnect } from "@/lib/dbConnect";
 import Cart from "@/models/Cart";
+import { currentUser } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
+// Remove a product from cart
 export async function DELETE(req, { params }) {
   await dbConnect();
-  const { id } = params; // item ID (productId)
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get("userId");
+  const { id } = params;
+  
+  const user = await currentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   try {
-    const cart = await Cart.findOne({ userId });
+    const cart = await Cart.findOne({ userId: user.id });
 
     if (!cart) {
-      return new Response(JSON.stringify({ error: "Cart not found" }), { status: 404 });
+      return NextResponse.json({ error: "Cart not found" }, { status: 404 });
     }
 
-    cart.items = cart.items.filter(item => item.productId.toString() !== id);
+    // Remove product from cart
+    cart.items = cart.items.filter(
+      item => item.productId.toString() !== id
+    );
+    
     await cart.save();
 
-    return new Response(JSON.stringify({ message: "Item removed" }), { status: 200 });
+    return NextResponse.json({ 
+      message: "Removed from cart",
+      productId: id
+    }, { status: 200 });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    console.error("Error removing from cart:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
+}
+
+// Get specific product in cart (with quantity)
+export async function GET(req, { params }) {
+  await dbConnect();
+  const { id } = params;
+  
+  const user = await currentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const cart = await Cart.findOne({ userId: user.id });
+    
+    if (!cart) {
+      return NextResponse.json({ inCart: false, quantity: 0 }, { status: 200 });
+    }
+    
+    const cartItem = cart.items.find(
+      item => item.productId.toString() === id
+    );
+    
+    if (cartItem) {
+      return NextResponse.json({ 
+        inCart: true, 
+        quantity: cartItem.quantity 
+      }, { status: 200 });
+    } else {
+      return NextResponse.json({ inCart: false, quantity: 0 }, { status: 200 });
+    }
+  } catch (error) {
+    console.error("Error checking cart:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function OPTIONS() {
+  return NextResponse.json({ message: "OK" }, { status: 200 });
 }

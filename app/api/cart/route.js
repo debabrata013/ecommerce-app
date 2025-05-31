@@ -1,46 +1,49 @@
 // app/api/cart/route.js
 import { dbConnect } from "@/lib/dbConnect";
 import Cart from "@/models/Cart";
-
-export async function POST(req) {
-  await dbConnect();
-  const { userId, productId, quantity } = await req.json();
-
-  try {
-    let cart = await Cart.findOne({ userId });
-
-    if (!cart) {
-      cart = await Cart.create({
-        userId,
-        items: [{ productId, quantity }],
-      });
-    } else {
-      const itemIndex = cart.items.findIndex(item => item.productId.toString() === productId);
-
-      if (itemIndex > -1) {
-        cart.items[itemIndex].quantity += quantity;
-      } else {
-        cart.items.push({ productId, quantity });
-      }
-
-      await cart.save();
-    }
-
-    return new Response(JSON.stringify(cart), { status: 200 });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
-  }
-}
+import { currentUser } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 export async function GET(req) {
   await dbConnect();
+  
+  const user = await currentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  
   const { searchParams } = new URL(req.url);
-  const userId = searchParams.get("userId");
+  const productId = searchParams.get("productId");
 
   try {
-    const cart = await Cart.findOne({ userId }).populate("items.productId");
-    return new Response(JSON.stringify(cart), { status: 200 });
+    const cart = await Cart.findOne({ userId: user.id });
+    
+    // If checking for a specific product
+    if (productId) {
+      if (!cart) {
+        return NextResponse.json({ inCart: false }, { status: 200 });
+      }
+      
+      const inCart = cart.items.some(
+        item => item.productId.toString() === productId
+      );
+      
+      return NextResponse.json({ inCart }, { status: 200 });
+    }
+    
+    // Return full cart
+    if (!cart) {
+      return NextResponse.json({ userId: user.id, items: [] }, { status: 200 });
+    }
+    
+    const populatedCart = await cart.populate("items.productId");
+    return NextResponse.json(populatedCart, { status: 200 });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    console.error("Error fetching cart:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
+}
+
+export async function OPTIONS() {
+  return NextResponse.json({ message: "OK" }, { status: 200 });
 }
