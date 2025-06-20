@@ -293,12 +293,12 @@ export default function CartPage() {
                 </div>
                 
                 <div className="mt-8">
-                  <button
-                    type="button"
-                    className="w-full bg-indigo-600 border border-transparent rounded-md py-3 px-4 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                  <Link
+                    href="/checkout"
+                    className="w-full bg-indigo-600 border border-transparent rounded-md py-3 px-4 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors text-center block"
                   >
                     Proceed to Checkout
-                  </button>
+                  </Link>
                 </div>
                 
                 <div className="mt-4 text-center">
