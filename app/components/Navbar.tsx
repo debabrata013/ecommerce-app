@@ -48,7 +48,7 @@
 //             {isSignedIn ? (
 //               <>
 //                 <Link
-//                   href="/cart"
+//                   href="/dashboard/cart"
 //                   className="p-2 rounded-full hover:bg-gray-100"
 //                 >
 //                   <ShoppingCart className="h-6 w-6 text-gray-600" />
@@ -110,7 +110,7 @@
 //             {isSignedIn ? (
 //               <>
 //                 <Link
-//                   href="/cart"
+//                   href="/dashboard/cart"
 //                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
 //                   onClick={() => setIsMenuOpen(false)}
 //                 >
@@ -277,7 +277,7 @@ export default function Navbar() {
             {isSignedIn ? (
               <>
                 <Link
-                  href="/cart"
+                  href="/dashboard/cart"
                   className="p-2 rounded-full hover:bg-gray-100 relative"
                   aria-label="Shopping cart"
                 >
@@ -395,7 +395,7 @@ export default function Navbar() {
           {isSignedIn ? (
             <>
               <Link
-                href="/cart"
+                href="/dashboard/cart"
                 className="flex items-center justify-between px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-emerald-600"
               >
                 <span>Cart</span>

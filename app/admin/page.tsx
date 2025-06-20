@@ -33,13 +33,17 @@ import {
   Home,
   BarChart3,
   Star,
-  AlertCircle
+  AlertCircle,
+  LogOut,
+  User
 } from 'lucide-react';
+import { useUser, SignOutButton } from '@clerk/nextjs';
 
 import ProductsContent from './product';
 export default function EcommerceAdminDashboard() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { user } = useUser();
 
   // Mock data
   const salesData = [
@@ -600,16 +604,44 @@ export default function EcommerceAdminDashboard() {
         </nav>
 
         <div className="p-4 border-t border-gray-200">
-          <div className={`flex items-center ${sidebarOpen ? 'space-x-3' : 'justify-center'}`}>
+          <div className={`flex items-center ${sidebarOpen ? 'space-x-3' : 'justify-center'} mb-4`}>
             <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-              <span className="text-sm font-medium text-gray-600">AD</span>
+              <span className="text-sm font-medium text-gray-600">
+                {user?.firstName?.charAt(0) || user?.emailAddresses[0]?.emailAddress?.charAt(0) || 'A'}
+              </span>
             </div>
             {sidebarOpen && (
-              <div>
-                <p className="text-sm font-medium text-gray-900">Admin User</p>
-                <p className="text-xs text-gray-500">admin@store.com</p>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-900">
+                  {user?.firstName && user?.lastName 
+                    ? `${user.firstName} ${user.lastName}` 
+                    : user?.emailAddresses[0]?.emailAddress || 'Admin User'
+                  }
+                </p>
+                <p className="text-xs text-gray-500">
+                  {user?.emailAddresses[0]?.emailAddress || 'admin@store.com'}
+                </p>
               </div>
             )}
+          </div>
+          
+          {/* Profile and Logout Buttons */}
+          <div className="space-y-2">
+            <button
+              className={`w-full flex items-center ${sidebarOpen ? 'px-3' : 'px-2'} py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-50`}
+            >
+              <User className="w-4 h-4" />
+              {sidebarOpen && <span className="ml-3 text-sm">Profile</span>}
+            </button>
+            
+            <SignOutButton>
+              <button
+                className={`w-full flex items-center ${sidebarOpen ? 'px-3' : 'px-2'} py-2 rounded-lg transition-colors text-red-600 hover:bg-red-50`}
+              >
+                <LogOut className="w-4 h-4" />
+                {sidebarOpen && <span className="ml-3 text-sm">Sign Out</span>}
+              </button>
+            </SignOutButton>
           </div>
         </div>
       </div>

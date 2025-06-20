@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useUser } from "@clerk/nextjs";
 
 export interface Product {
   _id: string;
@@ -31,19 +32,31 @@ const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const [cart, setCart] = useState<Product[]>([]);
   const [wishlist, setWishlist] = useState<Product[]>([]);
+  const { user, isLoaded } = useUser();
 
   const fetchCartWishlist = async () => {
+    // Only fetch if user is authenticated
+    if (!user || !isLoaded) return;
+    
     try {
       const response = await axios.get("/api/user/"); // <- your merged cart + wishlist API
       setCart(Array.isArray(response.data.cart) ? response.data.cart : []);
       setWishlist(Array.isArray(response.data.wishlist) ? response.data.wishlist : []);
     } catch (err) {
       console.error("Failed to fetch user data", err);
-      toast.error("Failed to fetch user data");
+      // Don't show toast error if user is not authenticated
+      if (user) {
+        toast.error("Failed to fetch user data");
+      }
     }
   };
 
   const addToCart = async (product: Product) => {
+    if (!user) {
+      toast.error("Please sign in to add items to cart");
+      return;
+    }
+    
     try {
       await axios.post("/api/cart/add", { productId: product._id, quantity: 1 });
       setCart((prev) => [...prev, product]);
@@ -55,6 +68,11 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const removeFromCart = async (productId: string) => {
+    if (!user) {
+      toast.error("Please sign in to manage cart");
+      return;
+    }
+    
     try {
       await axios.delete(`/api/cart/${productId}`);
       setCart((prev) => prev.filter((p) => p._id !== productId));
@@ -66,6 +84,11 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const toggleWishlist = async (product: Product) => {
+    if (!user) {
+      toast.error("Please sign in to manage wishlist");
+      return;
+    }
+    
     try {
       if (wishlist.find((p) => p._id === product._id)) {
         await axios.delete(`/api/wishlist/${product._id}`);
@@ -83,8 +106,10 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    fetchCartWishlist();
-  }, []);
+    if (isLoaded && user) {
+      fetchCartWishlist();
+    }
+  }, [user, isLoaded]);
 
   return (
     <GlobalContext.Provider

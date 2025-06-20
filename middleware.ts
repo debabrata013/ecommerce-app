@@ -1,26 +1,25 @@
-import { clerkMiddleware , ClerkMiddlewareAuth,clerkClient} from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-// export default clerkMiddleware();
-// This example protects all routes including api/trpc routes
-// Please edit this to allow other routes to be public as needed
+const isProtectedRoute = createRouteMatcher([
+  '/dashboard(.*)',
+  '/admin(.*)',
+  '/api/cart(.*)',
+  '/api/orders(.*)',
+  '/api/wishlist(.*)',
+  '/api/user(.*)'
+]);
 
-export default clerkMiddleware();
-
+export default clerkMiddleware(async (auth, req) => {
+  if (isProtectedRoute(req)) {
+    await auth.protect();
+  }
+});
 
 export const config = {
   matcher: [
     "/((?!.+\\.[\\w]+$|_next).*)",  // all routes except static
     "/", 
     "/(api|trpc)(.*)",
-  ],
-  publicRoutes: [
-    "/",
-    "/sign-in",
-    "/sign-up",
-    "/product/(.*)",
-    "/api/products",
-    "/api/products/(.*)",
-    "/404",
   ],
 };
 

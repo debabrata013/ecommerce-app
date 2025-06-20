@@ -38,6 +38,52 @@ export async function DELETE(req, { params }) {
   }
 }
 
+// Update quantity of a product in cart
+export async function PATCH(req, { params }) {
+  await dbConnect();
+  const { id } = params;
+  
+  const user = await currentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { quantity } = await req.json();
+    
+    if (!quantity || quantity < 1) {
+      return NextResponse.json({ error: "Invalid quantity" }, { status: 400 });
+    }
+
+    const cart = await Cart.findOne({ userId: user.id });
+
+    if (!cart) {
+      return NextResponse.json({ error: "Cart not found" }, { status: 404 });
+    }
+
+    // Find and update the item quantity
+    const itemIndex = cart.items.findIndex(
+      item => item.productId.toString() === id
+    );
+    
+    if (itemIndex === -1) {
+      return NextResponse.json({ error: "Product not found in cart" }, { status: 404 });
+    }
+    
+    cart.items[itemIndex].quantity = quantity;
+    await cart.save();
+
+    return NextResponse.json({ 
+      message: "Quantity updated",
+      productId: id,
+      quantity: quantity
+    }, { status: 200 });
+  } catch (error) {
+    console.error("Error updating cart quantity:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
 // Get specific product in cart (with quantity)
 export async function GET(req, { params }) {
   await dbConnect();

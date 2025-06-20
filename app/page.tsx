@@ -44,11 +44,13 @@
 // }
 "use client";
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import Link from "next/link";
+import { useUser } from "@clerk/nextjs";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Hero from "./components/Hero";
-import ProductCard from "./components/ProductCard";
+import ProductCard from "./components/ui/card";
 
 // Featured Categories Component with animation
 const FeaturedCategory = ({ category, description, imagePath, index }) => {
@@ -96,21 +98,58 @@ const FeaturedCategory = ({ category, description, imagePath, index }) => {
   );
 };
 
-// Trending Products Section
+// Trending Products Section - Now fetches real products
 const TrendingProducts = () => {
-  const trendingProducts = [
-    { id: 1, name: "Wireless Earbuds", price: 79.99, rating: 4.8, image: "/api/placeholder/280/320" },
-    { id: 2, name: "Smart Watch Series 5", price: 299.99, rating: 4.9, image: "/api/placeholder/280/320" },
-    { id: 3, name: "Premium Backpack", price: 89.99, rating: 4.7, image: "/api/placeholder/280/320" },
-    { id: 4, name: "Organic Cotton T-shirt", price: 24.99, rating: 4.5, image: "/api/placeholder/280/320" },
-  ];
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { user, isLoaded } = useUser();
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get('/api/products');
+        // Get first 8 products for trending section
+        setProducts(response.data.slice(0, 8));
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="py-12 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold text-gray-900">Trending Now</h2>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="bg-white rounded-xl overflow-hidden shadow-sm animate-pulse">
+                <div className="w-full h-40 sm:h-48 bg-gray-300"></div>
+                <div className="p-4">
+                  <div className="h-4 bg-gray-300 rounded mb-2"></div>
+                  <div className="h-3 bg-gray-300 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-300 rounded"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-12 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold text-gray-900">Trending Now</h2>
-          <Link href="/products/trending" className="text-indigo-600 hover:text-indigo-800 font-medium flex items-center">
+          <Link href="/dashboard" className="text-indigo-600 hover:text-indigo-800 font-medium flex items-center">
             View All
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -118,41 +157,89 @@ const TrendingProducts = () => {
           </Link>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-          {trendingProducts.map((product) => (
-            <div key={product.id} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <div className="relative">
-                <img 
-                  src={product.image} 
-                  alt={product.name}
-                  className="w-full h-40 sm:h-48 object-cover"
-                />
-                <div className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 hover:text-red-500 cursor-pointer transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {products.map((product) => (
+            <ProductCard 
+              key={product._id} 
+              product={product} 
+              showActions={isLoaded && !!user} 
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// Featured Products Section - Shows more products from database
+const FeaturedProducts = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { user, isLoaded } = useUser();
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get('/api/products');
+        // Get products 8-15 for featured section (different from trending)
+        setProducts(response.data.slice(8, 16));
+      } catch (error) {
+        console.error('Error fetching featured products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold text-gray-900">Featured Products</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="bg-white rounded-xl overflow-hidden shadow-sm animate-pulse border">
+                <div className="w-full h-48 bg-gray-300"></div>
+                <div className="p-4">
+                  <div className="h-4 bg-gray-300 rounded mb-2"></div>
+                  <div className="h-3 bg-gray-300 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-300 rounded"></div>
                 </div>
               </div>
-              <div className="p-4">
-                <h3 className="font-medium text-gray-900 text-sm sm:text-base">{product.name}</h3>
-                <div className="flex items-center mt-1">
-                  <div className="flex text-yellow-400">
-                    {[...Array(5)].map((_, i) => (
-                      <svg key={i} xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 ${i < Math.floor(product.rating) ? "text-yellow-400" : "text-gray-300"}`} viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
-                  </div>
-                  <span className="text-xs text-gray-500 ml-1">({product.rating})</span>
-                </div>
-                <div className="mt-2 flex items-center justify-between">
-                  <span className="font-bold text-gray-900">${product.price}</span>
-                  <button className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1 rounded-full transition-colors duration-200">
-                    Add to Cart
-                  </button>
-                </div>
-              </div>
-            </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="py-12 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Featured Products</h2>
+            <p className="mt-1 text-gray-500">Handpicked products just for you</p>
+          </div>
+          <Link href="/dashboard" className="text-indigo-600 hover:text-indigo-800 font-medium flex items-center">
+            View All Products
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {products.map((product) => (
+            <ProductCard 
+              key={product._id} 
+              product={product} 
+              showActions={isLoaded && !!user} 
+            />
           ))}
         </div>
       </div>
@@ -306,8 +393,11 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Trending Products Section */}
+        {/* Trending Products Section - Real Products */}
         <TrendingProducts />
+
+        {/* Featured Products Section - More Real Products */}
+        <FeaturedProducts />
 
         {/* Features Section */}
         <Features />
