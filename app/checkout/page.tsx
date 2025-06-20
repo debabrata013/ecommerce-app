@@ -48,9 +48,12 @@ interface CheckoutData {
   phone: string;
 }
 
+import { useGlobal } from '../context/GlobalContext';
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { user, isLoaded } = useUser();
+  const { clearCart } = useGlobal();
   
   const [cartData, setCartData] = useState<CartData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -122,6 +125,8 @@ export default function CheckoutPage() {
   const validateForm = () => {
     const errors: {[key: string]: string} = {};
     
+    console.log('Validating form with data:', checkoutData); // Debug log
+    
     if (!checkoutData.address.street.trim()) {
       errors.street = 'Street address is required';
     }
@@ -136,8 +141,8 @@ export default function CheckoutPage() {
     
     if (!checkoutData.address.zipCode.trim()) {
       errors.zipCode = 'ZIP code is required';
-    } else if (!/^\d{6}$/.test(checkoutData.address.zipCode)) {
-      errors.zipCode = 'ZIP code must be 6 digits';
+    } else if (!/^\d{5,6}$/.test(checkoutData.address.zipCode)) {
+      errors.zipCode = 'ZIP code must be 5-6 digits';
     }
     
     if (!checkoutData.phone.trim()) {
@@ -146,6 +151,7 @@ export default function CheckoutPage() {
       errors.phone = 'Phone number must be 10 digits';
     }
     
+    console.log('Validation errors:', errors); // Debug log
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -179,20 +185,26 @@ export default function CheckoutPage() {
 
   // Submit order
   const handleSubmitOrder = async () => {
+    console.log('Submit order clicked'); // Debug log
+    console.log('Current checkout data:', checkoutData); // Debug log
+    
     if (!validateForm()) {
-      toast.error('Please fill in all required fields');
+      console.log('Form validation failed:', formErrors); // Debug log
+      toast.error('Please fill in all required fields correctly');
       return;
     }
     
     setSubmitting(true);
     
     try {
+      console.log('Saving user profile...'); // Debug log
       // Save/update user profile
       await axios.post('/api/user/profile', {
         address: checkoutData.address,
         phone: checkoutData.phone
       });
       
+      console.log('Creating order...'); // Debug log
       // Create order
       const orderData = {
         items: cartData?.items || [],
@@ -202,16 +214,22 @@ export default function CheckoutPage() {
         totalAmount: total
       };
       
+      console.log('Order data:', orderData); // Debug log
       const response = await axios.post('/api/orders', orderData);
+      console.log('Order created:', response.data); // Debug log
       
       // Clear cart after successful order
+      console.log('Clearing cart...'); // Debug log
       await axios.delete('/api/cart/clear');
+      clearCart(); // Also clear from global context
+      console.log('✅ Cart cleared successfully'); // Debug log
       
       toast.success('Order placed successfully!');
       router.push(`/orders/${response.data._id}`);
       
     } catch (error) {
       console.error('Error placing order:', error);
+      console.error('Error details:', error.response?.data); // Debug log
       toast.error('Failed to place order. Please try again.');
     } finally {
       setSubmitting(false);
@@ -517,10 +535,23 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
+              {/* Debug Info - Remove this after testing */}
+              <div className="mt-4 p-4 bg-gray-100 rounded-lg text-xs">
+                <p><strong>Debug Info:</strong></p>
+                <p>User has address: {userHasAddress.toString()}</p>
+                <p>Show address form: {showAddressForm.toString()}</p>
+                <p>Street: "{checkoutData.address.street}"</p>
+                <p>City: "{checkoutData.address.city}"</p>
+                <p>State: "{checkoutData.address.state}"</p>
+                <p>ZIP: "{checkoutData.address.zipCode}"</p>
+                <p>Phone: "{checkoutData.phone}"</p>
+                <p>Form errors: {JSON.stringify(formErrors)}</p>
+              </div>
+
               {/* Submit Button */}
               <button
                 onClick={handleSubmitOrder}
-                disabled={submitting || (!userHasAddress && showAddressForm)}
+                disabled={submitting}
                 className="w-full mt-6 bg-indigo-600 border border-transparent rounded-md py-3 px-4 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {submitting ? (
@@ -531,6 +562,22 @@ export default function CheckoutPage() {
                 ) : (
                   'Confirm Order'
                 )}
+              </button>
+
+              {/* Test Button - Remove after debugging */}
+              <button
+                onClick={() => {
+                  console.log('Test button clicked');
+                  console.log('Current form data:', checkoutData);
+                  const isValid = validateForm();
+                  console.log('Form is valid:', isValid);
+                  if (!isValid) {
+                    console.log('Validation errors:', formErrors);
+                  }
+                }}
+                className="w-full mt-2 bg-gray-600 border border-transparent rounded-md py-2 px-4 text-sm font-medium text-white hover:bg-gray-700"
+              >
+                Test Validation
               </button>
             </div>
           </div>

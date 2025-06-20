@@ -22,6 +22,7 @@ interface GlobalContextType {
   setCart: React.Dispatch<React.SetStateAction<Product[]>>;
   setWishlist: React.Dispatch<React.SetStateAction<Product[]>>;
   fetchCartWishlist: () => Promise<void>;
+  clearCart: () => void;
   addToCart: (product: Product) => Promise<void>;
   removeFromCart: (productId: string) => Promise<void>;
   toggleWishlist: (product: Product) => Promise<void>;
@@ -46,9 +47,13 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
       console.error("Failed to fetch user data", err);
       // Don't show toast error if user is not authenticated
       if (user) {
-        toast.error("Failed to fetch user data");
+        // toast.error("Failed to fetch user data");
       }
     }
+  };
+
+  const clearCart = () => {
+    setCart([]);
   };
 
   const addToCart = async (product: Product) => {
@@ -119,6 +124,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
         setCart,
         setWishlist,
         fetchCartWishlist,
+        clearCart,
         addToCart,
         removeFromCart,
         toggleWishlist,
