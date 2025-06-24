@@ -28,13 +28,19 @@ interface Order {
   _id: string;
   orderNumber: string;
   items: OrderItem[];
-  shippingAddress: {
+  shippingAddress?: {
     street: string;
     city: string;
     state: string;
     zipCode: string;
     country: string;
   };
+  // Flattened address fields (fallback)
+  addressStreet?: string;
+  addressCity?: string;
+  addressState?: string;
+  addressZipCode?: string;
+  addressCountry?: string;
   phone: string;
   paymentMethod: string;
   paymentStatus: string;
@@ -195,9 +201,19 @@ export default function OrderDetailPage() {
                 Shipping Address
               </h2>
               <div className="text-gray-600">
-                <p className="font-medium text-gray-900">{order.shippingAddress.street}</p>
-                <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}</p>
-                <p>{order.shippingAddress.country}</p>
+                {order.shippingAddress ? (
+                  <>
+                    <p className="font-medium text-gray-900">{order.shippingAddress.street}</p>
+                    <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}</p>
+                    <p>{order.shippingAddress.country}</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-medium text-gray-900">{order.addressStreet}</p>
+                    <p>{order.addressCity}, {order.addressState} {order.addressZipCode}</p>
+                    <p>{order.addressCountry}</p>
+                  </>
+                )}
                 <div className="flex items-center mt-3">
                   <Phone className="w-4 h-4 mr-2 text-gray-500" />
                   <span>{order.phone}</span>
