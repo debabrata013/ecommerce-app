@@ -142,12 +142,19 @@ export async function GET(req) {
     await dbConnect();
     const user = await currentUser();
     if (!user) {
+      console.log("❌ User not authenticated");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    console.log("✅ User authenticated:", user.id);
+    console.log("Searching for orders with userId:", user.id);
 
     const orders = await Order.find({ userId: user.id })
       .populate('items.productId')
       .sort({ createdAt: -1 });
+    
+    console.log("✅ Found orders:", orders.length);
+    console.log("Orders data:", JSON.stringify(orders, null, 2));
     
     // Reconstruct address structure for each order
     const ordersWithAddress = orders.map(order => ({
@@ -161,6 +168,7 @@ export async function GET(req) {
       }
     }));
     
+    console.log("✅ Returning orders with reconstructed addresses:", ordersWithAddress.length);
     return NextResponse.json(ordersWithAddress, { status: 200 });
   } catch (error) {
     console.error("❌ Error fetching orders:", error);
