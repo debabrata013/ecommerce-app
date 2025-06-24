@@ -535,19 +535,6 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Debug Info - Remove this after testing */}
-              <div className="mt-4 p-4 bg-gray-100 rounded-lg text-xs">
-                <p><strong>Debug Info:</strong></p>
-                <p>User has address: {userHasAddress.toString()}</p>
-                <p>Show address form: {showAddressForm.toString()}</p>
-                <p>Street: "{checkoutData.address.street}"</p>
-                <p>City: "{checkoutData.address.city}"</p>
-                <p>State: "{checkoutData.address.state}"</p>
-                <p>ZIP: "{checkoutData.address.zipCode}"</p>
-                <p>Phone: "{checkoutData.phone}"</p>
-                <p>Form errors: {JSON.stringify(formErrors)}</p>
-              </div>
-
               {/* Submit Button */}
               <button
                 onClick={handleSubmitOrder}
@@ -564,21 +551,6 @@ export default function CheckoutPage() {
                 )}
               </button>
 
-              {/* Test Button - Remove after debugging */}
-              <button
-                onClick={() => {
-                  console.log('Test button clicked');
-                  console.log('Current form data:', checkoutData);
-                  const isValid = validateForm();
-                  console.log('Form is valid:', isValid);
-                  if (!isValid) {
-                    console.log('Validation errors:', formErrors);
-                  }
-                }}
-                className="w-full mt-2 bg-gray-600 border border-transparent rounded-md py-2 px-4 text-sm font-medium text-white hover:bg-gray-700"
-              >
-                Test Validation
-              </button>
             </div>
           </div>
         </div>
